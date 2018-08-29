@@ -1,4 +1,4 @@
-import {HttpError} from 'http-errors';
+var createError = require('http-errors')
 import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
@@ -21,7 +21,7 @@ app.use('/api', api);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  next(HttpError.createError(404));
+  next(createError(404));
 });
 
 // error handler
