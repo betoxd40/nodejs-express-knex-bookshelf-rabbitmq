@@ -4,7 +4,6 @@ var bookshelf = require('./server/config/bookshelf');
 var Article = require("./server/models/restaurant");
 
 var getInsertedArticle = function getInsertedArticle(id, callback) {
-    console.log("\nNow get the article from the db\n");
     Article.where('id', id).fetch().then(function (article) {
         callback(article);
     });
@@ -43,7 +42,6 @@ var insertArticle = function insertArticle(callback) {
             Lng: 'sadadsasd'
         })
     }).save().then(function (saved) {
-        console.log(saved);
         var insertedId = saved.attributes.id;
         callback(insertedId);
     });
@@ -53,6 +51,5 @@ var insertArticle = function insertArticle(callback) {
 insertArticle(function (id) {
     getInsertedArticle(id, function (article) {
         bookshelf.knex.destroy();
-        console.log(article);
     });
 });

@@ -17,7 +17,6 @@ const saveOrder = async (req, res, next) => {
             const originDirection = restaurantModel.get('Location').lat + ',' + restaurantModel.get('Location').lng;
             const destinyDirection = req.body.Location.lat + ',' + req.body.Location.lng;
             const ETA = await new MapClient().getETA(originDirection, destinyDirection);
-            //RABBITMQ, cuando me de OK paso el success, crear controller, llamar la funcion de alli llamada sent
             sendMessage('restaurant', 'A new order');
             receivedMessage('restaurant');
             res.status(200)

@@ -49,13 +49,11 @@ const insertArticle = async () =>{
                     price: 4.32,
                 }
             ]);
-            // console.log(restaurant);
             const saved = await new Restaurant(restaurant).save();
         });
         console.log('FILL RESTAURANT TABLE FROM GOOGLE MAP API');
         bookshelf.knex.destroy();
     } catch (error) {
-        console.log(error);
         return Promise.reject(error);
     }
 }
