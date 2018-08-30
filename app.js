@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import api from './server/routes';
 
-const  app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

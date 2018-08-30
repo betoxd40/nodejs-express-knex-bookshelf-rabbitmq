@@ -21,13 +21,13 @@ const getRestaurants = async (req, res) => {
         res.status(200)
             .json({
             success: true,
-            data: restaurantModel.toJSON()
+            data: restaurantModel
         })
-    } catch (e) {
-        res.status(e)
+    } catch (err) {
+        res.status(400)
             .json({
                 success: false,
-                data: {message: e.message}
+                message: err.message
             })
     }
 };
@@ -38,24 +38,25 @@ const deleteRestaurant = (req, res) => {
         .then((restaurant) => {
             restaurant.destroy()
                 .then(() => {
-                    res.json({
+                    res.status(200)
+                        .json({
                         success: true,
-                        // data: {message: 'Restaurant deleted'}
+                        message: req.params.id  // TO DO
                     })
                 })
-                .catch(() => {
+                .catch((err) => {
                     res.status(500)
                         .json({
                             success: false,
-                            data: {message: err.message}
+                            message: err.message
                         })
                 })
         })
         .catch((err) => {
-            res.status(500)
+            res.status(400)
                 .json({
                     success: false,
-                    data: {message: err.message}
+                    message: err.message
                 })
         })
 };
@@ -80,16 +81,16 @@ const updateRestaurant = (req, res) => {
                 address: req.body.address || restaurant.get('address'),
                 Location: JSON.stringify(req.body.Location) || JSON.stringify(restaurant.get('Location')),
             })
-                .then(() => {
+                .then((knexResponse) => {
                     res.json({
                         success: true,
-                        // data: {message: "restaurant update"}
+                        data: knexResponse
                     })
                 })
                 .catch((err) => {
                     res.json({
                         success: false,
-                        data: {message: err.message}
+                        message: err.message
                     })
                 })
         })
@@ -97,6 +98,7 @@ const updateRestaurant = (req, res) => {
             res.status(400)
                 .json({
                     success: false,
+                    message: err.message
                 })
         })
 };
@@ -109,14 +111,26 @@ const updateRateRestaurantById = (req, res) =>{
             totalRating = totalRating + review.rating;
         });
         const result = calculateRating(reviews.length, totalRating);
-        res.json({
-            success: true,
-            data: { rating: result }
+        new Restaurant({id: req.params.id})
+            .save({rating: result}, {patch: true})
+            .then(() => {
+                res.json({
+                    success: true,
+                    data: { rating: result }
+                })
+            }).catch((err)=> {
+            res.status(400)
+                .json({
+                    success: false,
+                    message: err.message
+                })
         })
+
     }).catch((err) => {
         res.status(400)
             .json({
                 success: false,
+                message: err.message
             })
     })
 };

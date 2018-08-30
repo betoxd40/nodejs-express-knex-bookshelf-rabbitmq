@@ -1,65 +1,64 @@
-'use strict';
-
-var bookshelf = require('./server/config/bookshelf');
+import bookshelf from './server/config/bookshelf';
 import Restaurant from './server/models/restaurant';
+import MapClient from './utils/maps';
 
-var getInsertedArticle = (id, callback) =>{
-    console.log("\nNow get the article from the db\n")
-    Restaurant.where('id', id).fetch().then(function(article) {
-        callback(article)
-    })
-}
-
-var insertArticle = (callback) =>{
+const insertArticle = async () =>{
     // create a new entry in articles database
-    new Restaurant({
-        logo: "Sample logo",
-        commercialName: "Sample commercialName",
-        legalName: "Sample legalName",
-        rating: 8,
-        reviews: JSON.stringify([
-            {
-                name: 'Sample Name',
-                description: 'Sample description',
-                rating: 4.32,
-            },
-            {
-                name: 'Sample Name 2',
-                description: 'Sample description 2',
-                rating: 4.32,
-            }
-        ]),
-        meals: JSON.stringify([
-            {
-                name: 'Sample Name',
-                description: 'Sample description',
-                price: 4.32,
-            },
-            {
-                name: 'Sample Name 2',
-                description: 'Sample description 2',
-                price: 4.32,
-            }
-        ]),
-        commercialEmail: "Sample commercialEmail",
-        adminNumber: "Sample adminNumber",
-        address: "Sample address",
-        Location: JSON.stringify({
-            Lat: 'asdad',
-            Lng: 'sadadsasd',
-        })
-    }).save()
-        .then(function(saved) {
-            console.log(saved)
-            const insertedId = saved.attributes.id;
-            callback(insertedId)
-        })
+
+    try {
+        let restaurants = [];
+        const googleMapsRes = await new MapClient().getPlaces();
+        googleMapsRes.result.map(restaurantResp => {
+            const restaurant = {
+                logo: restaurantResp.icon,
+                commercialName: restaurantResp.name,
+                legalName: restaurantResp.name,
+                rating: restaurantResp.rating,
+                address: restaurantResp.vicinity,
+                Location: restaurantResp.geometry.location,
+                reviews: [],
+                meals: [],
+                commercialEmail: restaurantResp.email || 'email dont found',
+                adminNumber: restaurantResp.adminPhone || 'admin phone dont found'
+            };
+            restaurants.push(restaurant);
+
+        });
+        restaurants.map(async restaurant => {
+            restaurant.reviews = JSON.stringify([
+                {
+                    name: 'Sample Name',
+                    description: 'Sample description',
+                    rating: 4.32,
+                },
+                {
+                    name: 'Sample Name 2',
+                    description: 'Sample description 2',
+                    rating: 4.32,
+                }
+            ]);
+            restaurant.meals = JSON.stringify([
+                {
+                    name: 'Sample Name',
+                    description: 'Sample description',
+                    price: 4.32,
+                },
+                {
+                    name: 'Sample Name 2',
+                    description: 'Sample description 2',
+                    price: 4.32,
+                }
+            ]);
+            // console.log(restaurant);
+            const saved = await new Restaurant(restaurant).save();
+        });
+        console.log('FILL RESTAURANT TABLE FROM GOOGLE MAP API');
+        bookshelf.knex.destroy();
+    } catch (error) {
+        console.log(error);
+        return Promise.reject(error);
+    }
 }
 
 // insert the article, and when we are done, destroy connection and get the inserted article
-insertArticle(function(id){
-    getInsertedArticle(id, function(article) {
-        bookshelf.knex.destroy()
-        console.log(article)
-    })
-});
+insertArticle();
