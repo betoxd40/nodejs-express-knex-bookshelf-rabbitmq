@@ -16,7 +16,7 @@ var insertArticle = (callback) =>{
         logo: "Sample logo",
         commercialName: "Sample commercialName",
         legalName: "Sample legalName",
-        rating: 4.32,
+        rating: 8,
         reviews: JSON.stringify([
             {
                 name: 'Sample Name',

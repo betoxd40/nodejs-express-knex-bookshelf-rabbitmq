@@ -11,17 +11,17 @@ const saveOrder = (req, res, next) => {
         .save()
         .then((order) => {
             res.json({
-                error: false,
-                data: {
+                success: true,
+                /*data: {
                     id : order.get('id'),
                     totalCost : order.get('totalCost')
-                }
+                }*/
             });
         })
         .catch(function (err) {
             res.status(500)
                 .json({
-                    error: true,
+                    success: false,
                     data: {message: err.message}
                 });
         });

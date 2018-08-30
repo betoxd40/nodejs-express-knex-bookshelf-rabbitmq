@@ -5,17 +5,27 @@ const calculateRating = (reviewLength, totalRating) => {
     return reviewLength * totalRating / reviewLength;
 };
 
+const addReview = (reviewBody, reviewBD) => {
+    if(reviewBD){
+        reviewBody.map(review => {
+            reviewBD.push(review);
+        });
+        return JSON.stringify(reviewBD);
+    }
+    return JSON.stringify(reviewBody);
+};
+
 const getRestaurants = async (req, res) => {
     try{
-        const restaurantModel = await Restaurants.forge().fetch();
+        const restaurantModel = await Restaurants.forge().orderBy('rating', 'DESC').fetch();
         res.json({
-            error: false,
+            success: true,
             data: restaurantModel.toJSON()
         })
     } catch (e) {
         res.status(e)
             .json({
-                error: true,
+                success: false,
                 data: {message: e.message}
             })
     }
@@ -28,14 +38,14 @@ const deleteRestaurant = (req, res) => {
             restaurant.destroy()
                 .then(() => {
                     res.json({
-                        error: false,
-                        data: {message: 'Restaurant deleted'}
+                        success: true,
+                        // data: {message: 'Restaurant deleted'}
                     })
                 })
                 .catch(() => {
                     res.status(500)
                         .json({
-                            error: true,
+                            success: false,
                             data: {message: err.message}
                         })
                 })
@@ -43,7 +53,7 @@ const deleteRestaurant = (req, res) => {
         .catch((err) => {
             res.status(500)
                 .json({
-                    error: true,
+                    success: false,
                     data: {message: err.message}
                 })
         })
@@ -62,7 +72,7 @@ const updateRestaurant = (req, res) => {
                 commercialName: req.body.commercialName || restaurant.get('commercialName'),
                 legalName: req.body.legalName || restaurant.get('legalName'),
                 rating: req.body.rating || restaurant.get('rating'),
-                reviews: JSON.stringify(req.body.reviews) || JSON.stringify(restaurant.get('reviews')),
+                reviews: addReview((req.body.reviews), (restaurant.get('reviews'))),
                 meals: JSON.stringify(req.body.meals) || JSON.stringify(restaurant.get('meals')),
                 commercialEmail: req.body.commercialEmail || restaurant.get('commercialEmail'),
                 adminNumber: req.body.adminNumber || restaurant.get('adminNumber'),
@@ -71,13 +81,13 @@ const updateRestaurant = (req, res) => {
             })
                 .then(() => {
                     res.json({
-                        error: false,
-                        data: {message: "restaurant update"}
+                        success: true,
+                        // data: {message: "restaurant update"}
                     })
                 })
                 .catch((err) => {
                     res.json({
-                        error: true,
+                        success: false,
                         data: {message: err.message}
                     })
                 })
@@ -85,26 +95,9 @@ const updateRestaurant = (req, res) => {
         .catch((err) => {
             res.status(500)
                 .json({
-                    error: true,
+                    success: false,
                     data: {message: err.message}
                 })
-        })
-};
-
-const getRestaurantById = (id) =>{
-    Restaurant.forge({
-        id : id
-    })
-        .fetch()
-        .then(function(user){
-            if(!user){
-                return null;
-            }else{
-                return user.toJSON();
-            }
-        })
-        .catch(function(err){
-            return null;
         })
 };
 
@@ -117,9 +110,15 @@ const updateRateRestaurantById = (req, res) =>{
         });
         const result = calculateRating(reviews.length, totalRating);
         res.json({
-            error: false,
-            data: { id: req.params.id, rating: result }
+            success: true,
+            // data: { id: req.params.id, rating: result }
         })
+    }).catch((err) => {
+        res.status(500)
+            .json({
+                success: false,
+                data: {message: err.message}
+            })
     })
 };
 
