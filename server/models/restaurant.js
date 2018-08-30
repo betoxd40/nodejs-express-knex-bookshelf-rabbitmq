@@ -1,9 +1,11 @@
 import Bookshelf from '../config/bookshelf';
+import Order from './order';
 
-// create the Article model, it will include all of the attributes of the table.
-// the hasTimestamps: true command will automatically populate the created_at and updated_at columns
 const Restaurant = Bookshelf.Model.extend({
-    tableName: 'restaurant'
+    tableName: 'restaurant',
+    restaurant: function() {
+        return this.hasMany(Order);
+    }
 });
 
 export default Restaurant;

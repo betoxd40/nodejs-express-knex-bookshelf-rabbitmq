@@ -1,18 +1,18 @@
 'use strict';
 
 var bookshelf = require('./server/config/bookshelf');
-var Article = require("./server/models/restaurant");
+import Restaurant from './server/models/restaurant';
 
 var getInsertedArticle = (id, callback) =>{
     console.log("\nNow get the article from the db\n")
-    Article.where('id', id).fetch().then(function(article) {
+    Restaurant.where('id', id).fetch().then(function(article) {
         callback(article)
     })
 }
 
 var insertArticle = (callback) =>{
     // create a new entry in articles database
-    new Article({
+    new Restaurant({
         logo: "Sample logo",
         commercialName: "Sample commercialName",
         legalName: "Sample legalName",

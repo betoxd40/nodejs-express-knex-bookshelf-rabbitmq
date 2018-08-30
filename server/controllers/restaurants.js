@@ -1,23 +1,24 @@
 import Restaurant from '../models/restaurant';
 import Restaurants from '../collections/restaurants';
-import bookshelf from 'bookshelf';
 
-const getRestaurants = (req, res) => {
-    Restaurants.forge()
-        .fetch()
-        .then((collection) => {
-            res.json({
-                error: false,
-                data: collection.toJSON()
+const calculateRating = (reviewLength, totalRating) => {
+    return reviewLength * totalRating / reviewLength;
+};
+
+const getRestaurants = async (req, res) => {
+    try{
+        const restaurantModel = await Restaurants.forge().fetch();
+        res.json({
+            error: false,
+            data: restaurantModel.toJSON()
+        })
+    } catch (e) {
+        res.status(e)
+            .json({
+                error: true,
+                data: {message: e.message}
             })
-        })
-        .catch((err) => {
-            res.status(500)
-                .json({
-                    error: true,
-                    data: {message: err.message}
-                })
-        })
+    }
 };
 
 const deleteRestaurant = (req, res) => {
@@ -108,26 +109,18 @@ const getRestaurantById = (id) =>{
 };
 
 const updateRateRestaurantById = (req, res) =>{
-    bookshelf.knex('restaurant').where({
-        id: req.params.id
-    }).select('reviews')
-        .then( reviews => {
-            res.json({
-                error: false,
-                data: reviews.toJSON()
-            })
+    Restaurant.where({id: req.params.id}).fetch().then((restaurant) => {
+        const reviews = restaurant.toJSON().reviews;
+        let totalRating = 0;
+        reviews.map(review => {
+            totalRating = totalRating + review.rating;
         });
-    /*Restaurant.where('id', req.params.id).fetch().then(function(article) {
-        const reviews = article.toJSON().reviews;
-        let result = 0;
-        result = reviews.map(review => {
-            result = result + review;
-        });
+        const result = calculateRating(reviews.length, totalRating);
         res.json({
             error: false,
-            data: reviews.reduce((acc, val) => acc + val.rating, 0)
+            data: { id: req.params.id, rating: result }
         })
-    })*/
+    })
 };
 
 

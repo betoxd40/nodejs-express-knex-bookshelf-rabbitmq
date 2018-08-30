@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
-    "start": " babel-node ./bin/www --presets es2015"
+    "start": " babel-node ./bin/www --presets es2015",
+    "create-table": " babel-node index.js --presets es2015"
   },
   "dependencies": {
     "bookshelf": "^0.13.3",
