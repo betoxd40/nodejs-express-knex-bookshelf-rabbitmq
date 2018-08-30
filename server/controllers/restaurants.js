@@ -18,7 +18,8 @@ const addReview = (reviewBody, reviewBD) => {
 const getRestaurants = async (req, res) => {
     try{
         const restaurantModel = await Restaurants.forge().orderBy('rating', 'DESC').fetch();
-        res.json({
+        res.status(200)
+            .json({
             success: true,
             data: restaurantModel.toJSON()
         })
@@ -93,10 +94,9 @@ const updateRestaurant = (req, res) => {
                 })
         })
         .catch((err) => {
-            res.status(500)
+            res.status(400)
                 .json({
                     success: false,
-                    data: {message: err.message}
                 })
         })
 };
@@ -111,13 +111,12 @@ const updateRateRestaurantById = (req, res) =>{
         const result = calculateRating(reviews.length, totalRating);
         res.json({
             success: true,
-            // data: { id: req.params.id, rating: result }
+            data: { rating: result }
         })
     }).catch((err) => {
-        res.status(500)
+        res.status(400)
             .json({
                 success: false,
-                data: {message: err.message}
             })
     })
 };

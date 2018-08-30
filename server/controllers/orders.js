@@ -18,11 +18,10 @@ const saveOrder = (req, res, next) => {
                 }*/
             });
         })
-        .catch(function (err) {
-            res.status(500)
+        .catch( (err) => {
+            res.status(400)
                 .json({
                     success: false,
-                    data: {message: err.message}
                 });
         });
 };
