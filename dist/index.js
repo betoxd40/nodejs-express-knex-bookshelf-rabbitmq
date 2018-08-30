@@ -1,5 +1,3 @@
-'use strict';
-
 var bookshelf = require('./server/config/bookshelf');
 var Article = require("./server/models/restaurant");
 

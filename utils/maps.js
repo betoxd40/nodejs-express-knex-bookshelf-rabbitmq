@@ -12,9 +12,8 @@ class MapClient {
     async getPlaces(location) {
         try {
             const parameters = {
-                fields: 'photos,formatted_address,name,rating,opening_hours,geometry',
                 radius: 1500
-            }
+            };
             const response = await this.axios
                 .get(`${this.baseURL}/place/nearbysearch/json?location=${location || this.currentLocation}&radius=${parameters.radius}&type=restaurant&keyword=cruise&key=${this.apiKey}`);
             return { status: response.data.status, result: response.data.results };
