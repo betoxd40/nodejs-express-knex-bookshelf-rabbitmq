@@ -6,7 +6,7 @@ const calculateRating = (reviewLength, totalRating) => {
 };
 
 const addReview = (reviewBody, reviewBD) => {
-    if(reviewBD){
+    if (reviewBD) {
         reviewBody.map(review => {
             reviewBD.push(review);
         });
@@ -16,19 +16,20 @@ const addReview = (reviewBody, reviewBD) => {
 };
 
 const getRestaurants = async (req, res) => {
-    try{
+    try {
         const restaurantModel = await Restaurants.forge().orderBy('rating', 'DESC').fetch();
         res.status(200)
             .json({
-            success: true,
-            data: restaurantModel
-        })
+                success: true,
+                data: restaurantModel
+            })
     } catch (err) {
         res.status(400)
             .json({
                 success: false,
                 message: err.message
-            })
+            });
+        return Promise.reject(err);
     }
 };
 
@@ -40,9 +41,9 @@ const deleteRestaurant = (req, res) => {
                 .then(() => {
                     res.status(200)
                         .json({
-                        success: true,
-                        message: req.params.id  // TO DO
-                    })
+                            success: true,
+                            message: req.params.id  // TO DO
+                        })
                 })
                 .catch((err) => {
                     res.status(500)
@@ -103,36 +104,30 @@ const updateRestaurant = (req, res) => {
         })
 };
 
-const updateRateRestaurantById = (req, res) =>{
-    Restaurant.where({id: req.params.id}).fetch().then((restaurant) => {
-        const reviews = restaurant.toJSON().reviews;
-        let totalRating = 0;
-        reviews.map(review => {
-            totalRating = totalRating + review.rating;
-        });
-        const result = calculateRating(reviews.length, totalRating);
-        new Restaurant({id: req.params.id})
-            .save({rating: result}, {patch: true})
-            .then(() => {
-                res.json({
-                    success: true,
-                    data: { rating: result }
-                })
-            }).catch((err)=> {
-            res.status(400)
-                .json({
-                    success: false,
-                    message: err.message
-                })
-        })
+const updateRateRestaurantById = async (req, res) => {
+    try {
+        const restaurant = await Restaurant.where({id: req.params.id}).fetch();
+            const reviews = restaurant.toJSON().reviews;
+            let totalRating = 0;
+            reviews.map(review => {
+                totalRating = totalRating + review.rating;
+            });
+            const result = calculateRating(reviews.length, totalRating);
+            await new Restaurant({id: req.params.id})
+                .save({rating: result}, {patch: true});
+            res.json({
+                success: true,
+                data: {rating: result}
+            })
 
-    }).catch((err) => {
+    } catch (err) {
         res.status(400)
             .json({
                 success: false,
                 message: err.message
-            })
-    })
+            });
+        return Promise.reject(err);
+    }
 };
 
 
